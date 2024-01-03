@@ -45,7 +45,7 @@ class CreditServiceTest {
   fun `should create credit `() {
     //given
     val credit: Credit = buildCredit()
-    val customerId: Long = 1L
+    val customerId = 1L
 
     every { customerService.findById(customerId) } returns credit.customer!!
     every { creditRepository.save(credit) } returns credit
@@ -77,7 +77,7 @@ class CreditServiceTest {
   @Test
   fun `should return list of credits for a customer`() {
     //given
-    val customerId: Long = 1L
+    val customerId = 1L
     val expectedCredits: List<Credit> = listOf(buildCredit(), buildCredit(), buildCredit())
 
     every { creditRepository.findAllByCustomerId(customerId) } returns expectedCredits
@@ -94,7 +94,7 @@ class CreditServiceTest {
   @Test
   fun `should return credit for a valid customer and credit code`() {
     //given
-    val customerId: Long = 1L
+    val customerId = 1L
     val creditCode: UUID = UUID.randomUUID()
     val credit: Credit = buildCredit(customer = Customer(id = customerId))
 
@@ -111,7 +111,7 @@ class CreditServiceTest {
   @Test
   fun `should throw BusinessException for invalid credit code`() {
     //given
-    val customerId: Long = 1L
+    val customerId = 1L
     val invalidCreditCode: UUID = UUID.randomUUID()
 
     every { creditRepository.findByCreditCode(invalidCreditCode) } returns null
@@ -119,7 +119,7 @@ class CreditServiceTest {
     //then
     Assertions.assertThatThrownBy { creditService.findByCreditCode(customerId, invalidCreditCode) }
       .isInstanceOf(BusinessException::class.java)
-      .hasMessage("Creditcode $invalidCreditCode not found")
+      .hasMessage("Credit code $invalidCreditCode not found")
     //then
     verify(exactly = 1) { creditRepository.findByCreditCode(invalidCreditCode) }
   }
@@ -127,18 +127,17 @@ class CreditServiceTest {
   @Test
   fun `should throw IllegalArgumentException for different customer ID`() {
     //given
-    val customerId: Long = 1L
+    val customerId = 1L
     val creditCode: UUID = UUID.randomUUID()
     val credit: Credit = buildCredit(customer = Customer(id = 2L))
 
     every { creditRepository.findByCreditCode(creditCode) } returns credit
-    //when
-    //then
+
     Assertions.assertThatThrownBy { creditService.findByCreditCode(customerId, creditCode) }
       .isInstanceOf(IllegalArgumentException::class.java)
       .hasMessage("Contact admin")
 
-    verify { creditRepository.findByCreditCode(creditCode) }
+    verify(exactly = 1) { creditRepository.findByCreditCode(creditCode) }
   }
 
   companion object {
