@@ -6,6 +6,7 @@ plugins {
 	id 'org.jetbrains.kotlin.jvm' version '1.7.22'
 	id 'org.jetbrains.kotlin.plugin.spring' version '1.7.22'
 	id 'org.jetbrains.kotlin.plugin.jpa' version '1.7.22'
+	id("org.jetbrains.kotlinx.kover") version "0.7.5"
 }
 
 group = 'me.dio'
@@ -39,3 +40,4 @@ tasks.withType(KotlinCompile).configureEach {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
