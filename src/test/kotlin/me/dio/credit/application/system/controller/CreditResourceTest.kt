@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.*
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -110,6 +111,35 @@ class CreditResourceTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].numberOfInstallments").value(48))
     }
 
+
+    @Test
+    public fun `should find credit by credit code`(){
+        // given
+        val validUUIDString = "26929514-237c-11ed-861d-0242ac120002"
+        val customCreditDTO: CreditDto = builderCreditDto()
+        val customCustomer: Customer = Customer(id = 1L, email = "vitor@vitor.com")
+        customerRepository.save(customCustomer)
+        val creditToSave: Credit = customCreditDTO.toEntity()
+        creditToSave.creditCode = UUID.fromString(validUUIDString)
+        creditService.save(creditToSave)
+        // when
+        val result = mockMvc.perform(
+            MockMvcRequestBuilders.get("${URL}/${validUUIDString}") // replace with your actual endpoint
+                .param("customerId", customCustomer.id.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+        //then
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.creditCode").value(validUUIDString))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.creditValue").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.numberOfInstallment").value(48))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("IN_PROGRESS"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.emailCustomer").value("vitor@vitor.com"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.incomeCustomer").value("0.0"))
+            .andDo(MockMvcResultHandlers.print())
+
+    }
 
     private fun builderCreditDto(
         creditValue: BigDecimal = BigDecimal(0),
